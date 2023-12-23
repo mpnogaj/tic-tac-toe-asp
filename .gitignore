@@ -1,0 +1,8 @@
+.idea/
+.run/
+bin/
+obj/
+ClientApp/node_modules/
+ClientApp/dist/
+ClientApp/public/bundle.*
+

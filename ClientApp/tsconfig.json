@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "allowJs": false,
+    "baseUrl": "./",
+    "jsx": "react",
+    "declaration": false,
+    "esModuleInterop": true,
+    "lib": ["ES6", "DOM"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "outDir": "./dist/",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "sourceMap": true,
+    "target": "ES6"
+  }
+}
