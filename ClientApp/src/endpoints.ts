@@ -1,6 +1,7 @@
 const Endpoints = {
 	Rooms: '/api/rooms',
 	Player: '/api/player',
+	PlayerLogout: '/api/player/logout',
 	PingPlayer: '/api/player/ping',
 	Register: '/api/auth/register',
 	Login: '/api/auth/login',

@@ -8,6 +8,7 @@ import RoomComponent from '../components/RoomComponent';
 import Endpoints, { Base } from '../endpoints';
 
 interface ILoginPageState {
+	nickname: string | undefined;
 	isRefreshing: boolean;
 	rooms: Room[];
 }
@@ -17,12 +18,14 @@ class RoomsPage extends NavComponent<empty, ILoginPageState> {
 		super(props);
 
 		this.state = {
+			nickname: undefined,
 			isRefreshing: false,
 			rooms: []
 		};
 	}
 
 	componentDidMount(): void {
+		this.fetchNickname();
 		this.fetchRooms();
 	}
 
@@ -37,6 +40,24 @@ class RoomsPage extends NavComponent<empty, ILoginPageState> {
 			this.setState({ rooms: resp.data, isRefreshing: false });
 		} catch (error) {
 			console.error(error);
+		}
+	};
+
+	fetchNickname = async () => {
+		try {
+			const nickname = (await axios.get<string>(Endpoints.Player)).data;
+			this.setState({ ...this.state, nickname: nickname });
+		} catch (err) {
+			console.error(err);
+		}
+	};
+
+	logoutHandler = async () => {
+		try {
+			await axios.post(Endpoints.PlayerLogout);
+			this.props.navigate('/login');
+		} catch (err) {
+			console.error(err);
 		}
 	};
 
@@ -76,6 +97,10 @@ class RoomsPage extends NavComponent<empty, ILoginPageState> {
 	render(): React.ReactNode {
 		return (
 			<div>
+				<div>
+					<h1>Hi {this.state.nickname ?? ''}</h1>
+					<a onClick={async () => await this.logoutHandler()}>Logout</a>
+				</div>
 				<h1>Rooms</h1>
 				<div>
 					{!this.state.isRefreshing ? (

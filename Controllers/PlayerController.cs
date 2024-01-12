@@ -34,6 +34,15 @@ public class PlayerController : ControllerBase
         return Ok(token);
     }
 
+    [HttpPost("logout")]
+    [Authorize]
+    public IActionResult Logout()
+    {
+        Response.Cookies.Delete("jwt");
+        return Ok();
+    }
+    
+
     [HttpGet]
     [Authorize]
     public IActionResult Get()

@@ -116,11 +116,28 @@ public class AuthController : ControllerBase
         if (!BC.Verify(updateModel.OldPassword, player.Account!.PasswordHash)) return Unauthorized();
         
         player.Nickname = updateModel.Nickname;
-        player.Account.PasswordHash = BC.HashPassword(updateModel.NewPassword);
-
+        if (!string.IsNullOrEmpty(updateModel.NewPassword))
+        {
+            player.Account.PasswordHash = BC.HashPassword(updateModel.NewPassword);
+        }
+        
         await _dbContext.SaveChangesAsync();
 
-        return Ok();
+        
+        //update jwt to reflect changes
+        var token = _jwtManager.CreateJwtToken(new List<Claim>
+        {
+            new(ClaimTypes.Name, player.Nickname),
+            new Claim(ClaimTypes.Authentication, true.ToString(), ClaimValueTypes.Boolean),
+            new(ClaimTypes.NameIdentifier, player.Guid.ToString())
+        });
+        
+        Response.Cookies.Append("jwt", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = false,
+        });
+        return Ok(token);
     }
 
     private async Task<Player?> GetPlayerFromClaims(IEnumerable<Claim> claims)

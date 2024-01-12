@@ -6,7 +6,6 @@ export const isPlayer = async () => {
 		await axios.get(Endpoints.PingPlayer);
 		return true;
 	} catch (err) {
-		console.error(err);
 		return false;
 	}
 };
@@ -18,7 +17,6 @@ export const isAuth = async () => {
 		await axios.get(Endpoints.PingAuth);
 		return true;
 	} catch (err) {
-		console.error(err);
 		return false;
 	}
 };

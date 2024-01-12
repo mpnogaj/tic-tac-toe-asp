@@ -52,6 +52,20 @@ class ProfilePage extends React.Component<empty, CompState> {
 		return this.state.newPassword === this.state.newPasswordConfirm;
 	};
 
+	submitHandler = async () => {
+		if (!this.passwordsMatches()) return;
+
+		try {
+			await axios.patch(Endpoints.Auth, {
+				nickname: this.state.nickname,
+				newPassword: this.state.newPassword,
+				oldPassword: this.state.oldPassword
+			});
+		} catch (err) {
+			console.error(err);
+		}
+	};
+
 	render() {
 		if (this.state.error !== undefined) {
 			return (
@@ -122,7 +136,9 @@ class ProfilePage extends React.Component<empty, CompState> {
 								}}
 							/>
 						</div>
-						<a href="#">Submit</a>
+						<a href="#" onClick={async () => await this.submitHandler()}>
+							Submit
+						</a>
 					</div>
 				</div>
 				<div>
