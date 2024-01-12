@@ -1,10 +1,8 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using TicTacToe.Dto;
+using TicTacToe.Services;
 
 namespace TicTacToe.Controllers;
 
@@ -12,30 +10,21 @@ namespace TicTacToe.Controllers;
 [Route("api/[controller]")]
 public class PlayerController : ControllerBase
 {
-    private readonly IConfiguration _configuration;
+    private readonly IJwtManager _jwtManager;
 
-    public PlayerController(IConfiguration configuration)
+    public PlayerController(IJwtManager jwtManager)
     {
-        _configuration = configuration;
+        _jwtManager = jwtManager;
     }
 
     [HttpPost]
     public IActionResult LoginAnonymously([FromBody]PlayerDto playerDto)
     {
-        var claims = new List<Claim>
+        var token = _jwtManager.CreateJwtToken(new List<Claim>
         {
             new(ClaimTypes.Name, playerDto.Nickname),
             new(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString())
-        };
-        
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:SecurityKey"]!));
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-
-        var jwtToken = new JwtSecurityToken(claims: claims, expires: DateTime.Now.AddHours(2),
-            signingCredentials: credentials);
-
-        var token = new JwtSecurityTokenHandler().WriteToken(jwtToken);
+        });
         
         Response.Cookies.Append("jwt", token, new CookieOptions
         {
@@ -50,5 +39,12 @@ public class PlayerController : ControllerBase
     public IActionResult Get()
     {
         return Ok(User.GetNickname());
+    }
+
+    [HttpGet("ping")]
+    [Authorize]
+    public IActionResult Ping()
+    {
+        return Ok();
     }
 }

@@ -1,12 +1,11 @@
+import { NavComponent, NavComponentProps, navHOC } from '@/components/hoc/NavComponent';
+import Room from '@/types/dto/room';
+import { empty } from '@/types/other';
 import axios from 'axios';
 import React from 'react';
 
-import Room from '@/types/dto/room';
 import RoomComponent from '../components/RoomComponent';
-import { NavComponent, NavComponentProps, navHOC } from '@/components/hoc/NavComponent';
-import Endpoints, {Base} from '../endpoints';
-import { empty } from '@/types/other';
-import {redirect} from "react-router";
+import Endpoints, { Base } from '../endpoints';
 
 interface ILoginPageState {
 	isRefreshing: boolean;

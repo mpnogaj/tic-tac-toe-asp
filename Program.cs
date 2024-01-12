@@ -1,6 +1,9 @@
+using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using TicTacToe.Db;
 using TicTacToe.Hubs;
 using TicTacToe.Services;
 using TicTacToe.Services.Impl;
@@ -8,8 +11,6 @@ using TicTacToe.Services.Impl;
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 var services = builder.Services;
-
-services.AddSingleton<IRoomManager, RoomManager>();
 
 services.AddAuthentication().AddJwtBearer(options =>
 {
@@ -33,16 +34,34 @@ services.AddAuthentication().AddJwtBearer(options =>
     };
 });
 
+services.AddAuthorization(options =>
+{
+    options.AddPolicy("LoggedOnly", policy => policy.RequireClaim(ClaimTypes.Authentication));
+});
+
+services.AddDbContext<AppDbContext>(options => options.UseSqlite(configuration.GetConnectionString("Default")));
+
 services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 services.AddSignalR();
 services.AddCors();
 services.AddControllers();
 
+services.AddSingleton<IRoomManager, RoomManager>();
+services.AddTransient<IJwtManager, JwtManager>();
+services.AddTransient<IAccountManager, AccountManager>();
+
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    using var client = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    client.Database.EnsureCreated();
+}
+
 
 app.UseRouting();
 
-app.UseCors(options => options.WithOrigins("http://192.168.88.135:3000", "http://localhost:3000").AllowAnyMethod().AllowAnyHeader().AllowCredentials());
+app.UseCors(options => options.WithOrigins("http://localhost:3000").AllowAnyMethod().AllowAnyHeader().AllowCredentials());
 
 app.UseAuthentication();
 app.UseAuthorization();

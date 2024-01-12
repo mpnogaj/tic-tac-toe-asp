@@ -1,5 +1,6 @@
+import { Dictionary } from '@/types/other';
+
 import Player from './player';
-import {Dictionary} from "@/types/other";
 
 type Room = {
 	guid: string;

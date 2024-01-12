@@ -1,6 +1,6 @@
+import Player from '@/types/dto/player';
+import { HubConnection } from '@microsoft/signalr';
 import React from 'react';
-import {HubConnection} from "@microsoft/signalr";
-import Player from "@/types/dto/player";
 
 type GameComponentProps = {
 	startingPlayer: Player;
@@ -10,7 +10,7 @@ type GameComponentProps = {
 type GameComponentState = {
 	playerTurn: Player;
 	board: string[];
-	gameFinished: boolean,
+	gameFinished: boolean;
 	winner: string | null | undefined;
 };
 
@@ -25,69 +25,66 @@ class GameComponent extends React.Component<GameComponentProps, GameComponentSta
 			winner: undefined
 		};
 
-		this.props.socket.on("UpdateBoardState", (board: string, player: Player) => {
+		this.props.socket.on('UpdateBoardState', (board: string, player: Player) => {
 			const newBoard = board.split('').map(x => {
-				switch(x) {
+				switch (x) {
 					case '0':
 						return '⬛';
 					case '1':
 						return '⭕';
 					case '2':
 						return '❌';
-				}});
-			this.setState({playerTurn: player, board: newBoard});
+				}
+			});
+			this.setState({ playerTurn: player, board: newBoard });
 		});
-		this.props.socket.on("NotifyGameFinished", (winner: string | null) => {
-			this.setState({...this.state, gameFinished: true, winner: winner});
+		this.props.socket.on('NotifyGameFinished', (winner: string | null) => {
+			this.setState({ ...this.state, gameFinished: true, winner: winner });
 		});
 	}
 
 	makeMove = async (i: number, j: number) => {
-		await this.props.socket.invoke("MakeMove", i, j);
+		await this.props.socket.invoke('MakeMove', i, j);
 	};
 
 	render(): React.ReactNode {
 		return (
 			<div>
-				{
-					!this.state.gameFinished 
-						?
-						(
-							<div>
-								<h2>Current move: {this.state.playerTurn.nickname}</h2>
-							</div>
-						)
-						:
-						(
-							<div>
-								<h2>Game ended. {this.state.winner != null ? `Winner: ${this.state.winner}` : "Draw"}</h2>
-								<a href="/rooms">Return</a>
-							</div>
-						)
-				}
+				{!this.state.gameFinished ? (
+					<div>
+						<h2>Current move: {this.state.playerTurn.nickname}</h2>
+					</div>
+				) : (
+					<div>
+						<h2>
+							Game ended. {this.state.winner != null ? `Winner: ${this.state.winner}` : 'Draw'}
+						</h2>
+						<a href="/rooms">Return</a>
+					</div>
+				)}
 				<table>
 					<tbody>
-					{Array.apply(0, Array(3)).map((x: any, i: number) => {
-						return (
-							<tr key={i}>
-								{Array.apply(0, Array(3)).map((x: any, j: number) => {
-									return (
-										<th key={j}>
-											<GameTile
-												i={i}
-												j={j}
-												tileClickCallback={(i: number, j: number) => {
-													this.makeMove(i, j);
-												}}
-												value={this.state.board[3 * i + j]}
-												key={3 * i + j}
-											/>
-										</th>
-									);
-								})}
-							</tr>
-						);
-					})}
+						{Array.apply(0, Array(3)).map((x: never, i: number) => {
+							return (
+								<tr key={i}>
+									{Array.apply(0, Array(3)).map((x: never, j: number) => {
+										return (
+											<th key={j}>
+												<GameTile
+													i={i}
+													j={j}
+													tileClickCallback={(i: number, j: number) => {
+														this.makeMove(i, j);
+													}}
+													value={this.state.board[3 * i + j]}
+													key={3 * i + j}
+												/>
+											</th>
+										);
+									})}
+								</tr>
+							);
+						})}
 					</tbody>
 				</table>
 			</div>

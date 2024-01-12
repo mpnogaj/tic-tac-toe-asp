@@ -9,12 +9,12 @@ namespace TicTacToe.Hubs;
 public class TicTacToeHub : Hub<ITicTacToeClient>
 {
     private readonly IRoomManager _roomManager;
+    private readonly IAccountManager _accountManager;
     private readonly IMapper _mapper;
-    
-    private static readonly Dictionary<Player, string> PlayerConnections = new();
 
-    public TicTacToeHub(IRoomManager roomManager, IMapper mapper)
+    public TicTacToeHub(IRoomManager roomManager, IAccountManager accountManager, IMapper mapper)
     {
+        _accountManager = accountManager;
         _roomManager = roomManager;
         _mapper = mapper;
     }
@@ -30,8 +30,6 @@ public class TicTacToeHub : Hub<ITicTacToeClient>
             return;
         }
 
-        PlayerConnections[player] = Context.ConnectionId;
-        
         await this.Groups.AddToGroupAsync(Context.ConnectionId, room.Guid.ToString());
 
         await Clients.GroupExcept(room.Guid.ToString(), Context.ConnectionId)
@@ -56,11 +54,14 @@ public class TicTacToeHub : Hub<ITicTacToeClient>
         if (room.Game.GameStarted)
         {
             room.Game.Surrender(player);
-            _roomManager.CloseRoom(room);
+            if (room.Game.Winner != null)
+            {
+                await _accountManager.IncreaseGamesWon(room.Game.Winner.Guid);
+            }
+            
             await GetGroup(room).NotifyGameFinished(room.Game.Winner?.Nickname);
+            _roomManager.CloseRoom(room);
         }
-        
-        PlayerConnections.Remove(player);
 
         _roomManager.LeaveRoom(room, player);
         
@@ -83,6 +84,10 @@ public class TicTacToeHub : Hub<ITicTacToeClient>
 
         if (room.Game.GameStarted)
         {
+            foreach (var roomPlayer in room.Players)
+            {
+                await _accountManager.IncreaseGamesPlayed(roomPlayer.Guid);
+            }
             await GetGroup(room).NotifyGameStarted(_mapper.Map<PlayerDto>(room.Game.CurrentTurn));
         }
     }
@@ -109,6 +114,10 @@ public class TicTacToeHub : Hub<ITicTacToeClient>
         await GetGroup(room).UpdateBoardState(game.BoardToString(), _mapper.Map<PlayerDto>(game.CurrentTurn));
         if (game.GameFinished)
         {
+            if (game.Winner != null)
+            {
+                await _accountManager.IncreaseGamesWon(game.Winner.Guid);
+            }
             await GetGroup(room).NotifyGameFinished(game.Winner?.Nickname ?? null);
             _roomManager.CloseRoom(room);
         }

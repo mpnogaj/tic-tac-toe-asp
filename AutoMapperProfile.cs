@@ -15,5 +15,6 @@ public class AutoMapperProfile : Profile
                     opt.MapFrom(x =>
                         new Dictionary<Guid, bool>(x.ReadyDict.Keys.Select(key =>
                             new KeyValuePair<Guid, bool>(key.Guid, x.ReadyDict[key])))));
+        CreateMap<Account, AccountDto>();
     }
 }

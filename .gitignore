@@ -5,3 +5,4 @@ ClientApp/node_modules/
 ClientApp/dist/
 ClientApp/public/bundle.*
 
+App.db*

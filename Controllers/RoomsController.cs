@@ -47,7 +47,6 @@ public class RoomsController : ControllerBase
         {
             Guid = User.GetGuid(),
             Nickname = User.GetNickname(),
-            IsLoggedIn = false,
             Account = null
         };
 
@@ -71,7 +70,6 @@ public class RoomsController : ControllerBase
             Guid = User.GetGuid(),
             Nickname = User.GetNickname(),
             Account = null,
-            IsLoggedIn = false,
         };
 
         if (room.TryJoinRoom(player))

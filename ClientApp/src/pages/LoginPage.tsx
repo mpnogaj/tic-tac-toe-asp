@@ -1,61 +1,105 @@
-import React from 'react';
-
+import { NavComponent, NavComponentProps, navHOC } from '@/components/hoc/NavComponent';
+import Endpoints from '@/endpoints';
+import Player from '@/types/dto/player';
 import { empty } from '@/types/other';
-import axios from "axios";
-import Endpoints, {Base} from "@/endpoints";
-import Player from "@/types/dto/player";
+import axios from 'axios';
+import React from 'react';
 
 interface ILoginPageState {
 	username: string;
 	password: string;
-	nick: string;
+	nickname: string;
 }
 
-class LoginPage extends React.Component<empty, ILoginPageState> {
-	constructor(props: empty) {
+type LoginPayload = {
+	username: string;
+	password: string;
+};
+
+class LoginPage extends NavComponent<empty, ILoginPageState> {
+	constructor(props: NavComponentProps<empty>) {
 		super(props);
 		this.state = {
 			username: '',
 			password: '',
-			nick: ''
+			nickname: ''
 		};
 	}
 
 	playClickedHandler = async () => {
 		const data: Player = {
 			guid: '00000000-0000-0000-0000-000000000000',
-			nickname: this.state.nick
+			nickname: this.state.nickname
 		};
-		const resp = await axios.post(Endpoints.Player, data);
-		console.log(resp);
-	}
-	
+
+		await axios.post(Endpoints.Player, data);
+
+		this.props.navigate('/rooms');
+	};
+
+	loginHandler = async () => {
+		try {
+			const data: LoginPayload = {
+				username: this.state.username,
+				password: this.state.password
+			};
+
+			await axios.post(Endpoints.Login, data);
+
+			this.props.navigate('/rooms');
+		} catch (err) {
+			console.error(err);
+		}
+	};
+
 	render(): React.ReactNode {
 		return (
 			<div>
 				<h1>Login ...</h1>
 				<div>
 					<label>Login: </label>
-					<input type="text" value={this.state.username} />
+					<input
+						type="text"
+						value={this.state.username}
+						onInput={e => {
+							this.setState({ username: e.currentTarget.value });
+						}}
+					/>
 				</div>
 				<div>
 					<label>Password: </label>
-					<input type="password" value={this.state.password} />
+					<input
+						type="password"
+						value={this.state.password}
+						onInput={e => {
+							this.setState({ password: e.currentTarget.value });
+						}}
+					/>
 				</div>
 				<div>
-					<a>Login</a>
+					<a
+						onClick={() => {
+							this.loginHandler();
+						}}
+					>
+						Login
+					</a>
 				</div>
 				<div>
 					<span>
-						Don't have an account? <a href="/register">Register</a>
+						Don&apos;t have an account? <a href="/register">Register</a>
 					</span>
 				</div>
 				<h1>... or play anonymously</h1>
 				<div>
 					<label>Nick: </label>
-					<input type="text" value={this.state.nick} onInput={(e) => {
-						this.setState({nick: e.currentTarget.value});
-					}} />
+					<input
+						type="text"
+						value={this.state.nickname}
+						onInput={e => {
+							this.setState({ nickname: e.currentTarget.value });
+						}}
+					/>
 				</div>
 				<div>
 					<a onClick={async () => await this.playClickedHandler()}>Play</a>
@@ -65,4 +109,4 @@ class LoginPage extends React.Component<empty, ILoginPageState> {
 	}
 }
 
-export default LoginPage;
+export default navHOC(LoginPage);

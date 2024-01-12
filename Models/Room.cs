@@ -16,12 +16,12 @@ public class Room
             return false;
         }
 
-        if (Players.Any(x => x.Guid == player.Guid))
+        //if player is already on the list just don't add him
+        if (Players.All(x => x.Guid != player.Guid))
         {
-            return false;
+            Players.Add(player);
         }
         
-        Players.Add(player);
         return true;
     }
 
