@@ -56,35 +56,38 @@ class LoginPage extends NavComponent<empty, ILoginPageState> {
 		return (
 			<div>
 				<h1>Login ...</h1>
-				<div>
-					<label>Login: </label>
-					<input
-						type="text"
-						value={this.state.username}
-						onInput={e => {
-							this.setState({ username: e.currentTarget.value });
-						}}
-					/>
-				</div>
-				<div>
-					<label>Password: </label>
-					<input
-						type="password"
-						value={this.state.password}
-						onInput={e => {
-							this.setState({ password: e.currentTarget.value });
-						}}
-					/>
-				</div>
-				<div>
-					<a
+				<form>
+					<div className="form-group">
+						<label>Login: </label>
+						<input
+							className="form-control"
+							type="text"
+							value={this.state.username}
+							onInput={e => {
+								this.setState({ username: e.currentTarget.value });
+							}}
+						/>
+					</div>
+					<div className="form-group">
+						<label>Password: </label>
+						<input
+							className="form-control"
+							type="password"
+							value={this.state.password}
+							onInput={e => {
+								this.setState({ password: e.currentTarget.value });
+							}}
+						/>
+					</div>
+					<button
+						className="btn btn-primary"
 						onClick={() => {
 							this.loginHandler();
 						}}
 					>
 						Login
-					</a>
-				</div>
+					</button>
+				</form>
 				<div>
 					<span>
 						Don&apos;t have an account? <a href="/register">Register</a>
