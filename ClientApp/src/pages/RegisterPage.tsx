@@ -44,41 +44,44 @@ class RegisterPage extends NavComponent<empty, IRegisterPageState> {
 
 	render(): React.ReactNode {
 		return (
-			<div>
+			<div className="container">
 				<h1>Register</h1>
-				<div>
-					<label>Username: </label>
-					<input
-						type="text"
-						value={this.state.username}
-						onChange={event => {
-							this.setState({ username: event.target.value });
-						}}
-					/>
-				</div>
-				<div>
-					<label>Nickname: </label>
-					<input
-						type="text"
-						value={this.state.nickname}
-						onChange={event => {
-							this.setState({ nickname: event.target.value });
-						}}
-					/>
-				</div>
-				<div>
-					<label>Password: </label>
-					<input
-						type="password"
-						value={this.state.password}
-						onChange={event => {
-							this.setState({ password: event.target.value });
-						}}
-					/>
-				</div>
-				<div>
-					<a onClick={async () => await this.registerHandler()}>Register</a>
-				</div>
+				<form>
+					<div className="form-group">
+						<label>Username: </label>
+						<input
+							className="form-control"
+							type="text"
+							value={this.state.username}
+							onChange={event => {
+								this.setState({ username: event.target.value });
+							}}
+						/>
+					</div>
+					<div className="form-group">
+						<label>Nickname: </label>
+						<input
+							className="form-control"
+							type="text"
+							value={this.state.nickname}
+							onChange={event => {
+								this.setState({ nickname: event.target.value });
+							}}
+						/>
+					</div>
+					<div className="form-group">
+						<label>Password: </label>
+						<input
+							className="form-control"
+							type="password"
+							value={this.state.password}
+							onChange={event => {
+								this.setState({ password: event.target.value });
+							}}
+						/>
+					</div>
+					<button className="btn btn-primary mt-3" onClick={async () => await this.registerHandler()}>Register</button>
+				</form>
 			</div>
 		);
 	}

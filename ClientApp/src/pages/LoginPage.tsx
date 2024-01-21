@@ -54,9 +54,9 @@ class LoginPage extends NavComponent<empty, ILoginPageState> {
 
 	render(): React.ReactNode {
 		return (
-			<div>
-				<h1>Login ...</h1>
-				<form>
+			<div className="container">
+				<h1>Sign in ...</h1>
+				<div className="form">
 					<div className="form-group">
 						<label>Login: </label>
 						<input
@@ -80,32 +80,36 @@ class LoginPage extends NavComponent<empty, ILoginPageState> {
 						/>
 					</div>
 					<button
-						className="btn btn-primary"
+						className="btn btn-primary mt-3"
 						onClick={() => {
 							this.loginHandler();
 						}}
 					>
 						Login
 					</button>
+					<div>
+						<span>
+							Don&apos;t have an account? <a href="/register">Sign up</a>
+						</span>
+					</div>
+				</div>
+
+				<h1>... or play anonymously</h1>
+				<form>
+					<div className="form-group">
+						<label>Nick: </label>
+						<input
+							className="form-control"
+							type="text"
+							value={this.state.nickname}
+							onInput={e => {
+								this.setState({ nickname: e.currentTarget.value });
+							}}
+						/>
+					</div>
 				</form>
 				<div>
-					<span>
-						Don&apos;t have an account? <a href="/register">Register</a>
-					</span>
-				</div>
-				<h1>... or play anonymously</h1>
-				<div>
-					<label>Nick: </label>
-					<input
-						type="text"
-						value={this.state.nickname}
-						onInput={e => {
-							this.setState({ nickname: e.currentTarget.value });
-						}}
-					/>
-				</div>
-				<div>
-					<a onClick={async () => await this.playClickedHandler()}>Play</a>
+					<button className="btn btn-primary mt-3" onClick={async () => await this.playClickedHandler()}>Play</button>
 				</div>
 			</div>
 		);

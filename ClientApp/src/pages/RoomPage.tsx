@@ -9,6 +9,7 @@ import axios from 'axios';
 import React from 'react';
 
 import GameComponent from '../components/GameComponent';
+import player from '@/types/dto/player';
 
 type RoomPageState = {
 	isLoading: boolean;
@@ -17,6 +18,7 @@ type RoomPageState = {
 	gameStarted: boolean;
 	playersReady: Map<string, boolean>;
 	players: Map<string, Player>;
+	roomName: string;
 };
 
 type RoomPageParams = {
@@ -36,7 +38,8 @@ class RoomPage extends ParamsComponent<empty, RoomPageParams, RoomPageState> {
 			error: undefined,
 			gameStarted: false,
 			playersReady: new Map<string, boolean>(),
-			players: new Map<string, Player>()
+			players: new Map<string, Player>(),
+			roomName: ''
 		};
 
 		this.startingPlayer = undefined;
@@ -98,7 +101,8 @@ class RoomPage extends ParamsComponent<empty, RoomPageParams, RoomPageState> {
 					isLoading: false,
 					error: undefined,
 					players: playersMap,
-					playersReady: readyMap
+					playersReady: readyMap,
+					roomName: room.roomName
 				});
 			} catch (err) {
 				this.setState({ ...this.state, isLoading: false, error: err });
@@ -120,9 +124,12 @@ class RoomPage extends ParamsComponent<empty, RoomPageParams, RoomPageState> {
 
 		if (this.state.connectionClosed) {
 			return (
-				<div>
-					<p>Connection closed. You might have passed wrong room id</p>
-					<a href="/rooms">Back to list</a>
+				<div className="container d-flex">
+					<div className="mt-3 mx-auto alert alert-danger d-inline-block" role="alert">
+						<div className="text-center">
+							Connection closed. You might have passed wrong room id. <a href="/rooms">Go back to room list</a>
+						</div>
+					</div>
 				</div>
 			);
 		}
@@ -130,45 +137,48 @@ class RoomPage extends ParamsComponent<empty, RoomPageParams, RoomPageState> {
 		if (this.state.connectionClosed || this.state.error !== undefined) {
 			const error = this.state.error ?? 'Invalid room guid';
 			return (
-				<div>
-					<p>Connection closed. Error: {error}</p>
-					<a href="/rooms">Back to list</a>
+				<div className="container d-flex">
+					<div className="mt-3 mx-auto alert alert-danger d-inline-block" role="alert">
+						<div className="text-center">
+							Connection closed. Error: {error}. <a href="/rooms">Go back to room list</a>
+						</div>
+					</div>
 				</div>
 			);
 		}
 
 		if (this.state.gameStarted && this.startingPlayer !== undefined) {
 			return (
-				<div>
-					<h1>Game started</h1>
-					<GameComponent startingPlayer={this.startingPlayer} socket={this.connection} />
-				</div>
+				<GameComponent startingPlayer={this.startingPlayer} socket={this.connection} />
 			);
 		} else {
 			return (
-				<div>
-					<h1>Room: {this.props.params.roomGuid}</h1>
+				<div className="container">
+					<h1>Room: {this.state.roomName}</h1>
+					<h2>Room code: {this.props.params.roomGuid}</h2>
 					<h2>Players:</h2>
-					<div>
-						<ul>
+					<div className="mt-3 mb-3">
+						<ul className="list-group d-inline-flex">
 							{Array.from(this.state.players.values()).map(player => {
 								const isReady = this.state.playersReady.get(player.guid) ?? false;
 								return (
-									<li key={player.guid}>
-										{player.nickname} - {isReady ? 'Ready' : 'Not ready'}
+									<li className="list-group-item d-flex justify-content-between align-items-center" key={player.guid}>
+										{player.nickname}
+										<span className="badge rounded-pill">{isReady ? '✔' : '❌'}</span>
 									</li>
 								);
 							})}
 						</ul>
 					</div>
 
-					<a
+					<button
+						className="btn btn-primary"
 						onClick={async () => {
 							await this.connection.invoke('ToggleReady');
 						}}
 					>
 						Toggle ready
-					</a>
+					</button>
 				</div>
 			);
 		}

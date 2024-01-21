@@ -6,10 +6,13 @@ import React from 'react';
 
 import RoomComponent from '../components/RoomComponent';
 import Endpoints, { Base } from '../endpoints';
+import { isAuth } from '@/utils/auth';
 
 interface ILoginPageState {
 	nickname: string | undefined;
+	isLoggedIn: boolean;
 	isRefreshing: boolean;
+	roomName: string;
 	rooms: Room[];
 }
 
@@ -19,7 +22,9 @@ class RoomsPage extends NavComponent<empty, ILoginPageState> {
 
 		this.state = {
 			nickname: undefined,
+			isLoggedIn: false,
 			isRefreshing: false,
+			roomName: '',
 			rooms: []
 		};
 	}
@@ -27,6 +32,7 @@ class RoomsPage extends NavComponent<empty, ILoginPageState> {
 	componentDidMount(): void {
 		this.fetchNickname();
 		this.fetchRooms();
+		this.isLoggedIn();
 	}
 
 	fetchRooms = async () => {
@@ -51,6 +57,15 @@ class RoomsPage extends NavComponent<empty, ILoginPageState> {
 			console.error(err);
 		}
 	};
+	
+	isLoggedIn = async () => {
+		try {
+			const isLoggedIn = await isAuth();
+			this.setState({...this.state, isLoggedIn: isLoggedIn});
+		} catch (err) {
+			console.error(err);
+		}
+	}
 
 	logoutHandler = async () => {
 		try {
@@ -62,9 +77,7 @@ class RoomsPage extends NavComponent<empty, ILoginPageState> {
 	};
 
 	createRoom = async () => {
-		const roomName = prompt('Enter room name');
-
-		if (roomName === null) return;
+		const roomName = this.state.roomName;
 
 		const room: Room = {
 			roomName: roomName,
@@ -96,45 +109,103 @@ class RoomsPage extends NavComponent<empty, ILoginPageState> {
 
 	render(): React.ReactNode {
 		return (
-			<div>
-				<div>
-					<h1>Hi {this.state.nickname ?? ''}</h1>
-					<a onClick={async () => await this.logoutHandler()}>Logout</a>
+			<div className="container">
+				<div className="row mt-3">
+					<div className="col">
+						<h2>Hi {this.state.nickname ?? ''}</h2>
+					</div>
+					<div className="col-auto">
+						<button className="btn btn-primary" onClick={async () => await this.logoutHandler()} disabled={!this.state.isLoggedIn}>Profile</button>
+					</div>
+					<div className="col-auto">
+						<button className="btn btn-primary" onClick={async () => await this.logoutHandler()}>Logout</button>
+					</div>
 				</div>
+
 				<h1>Rooms</h1>
-				<div>
-					{!this.state.isRefreshing ? (
-						<a
-							onClick={() => {
-								this.fetchRooms();
+				<div className="row">
+					<div className="col-auto">
+						<button
+							className="btn btn-primary"
+							data-bs-toggle="modal" data-bs-target="#createRoomModal"
+						>
+							Create room
+						</button>
+					</div>
+					<div className="col-auto">
+						<button
+							disabled={this.state.isRefreshing}
+							className="btn btn-primary"
+							onClick={async () => {
+								await this.fetchRooms();
 							}}
 						>
-							Refresh
-						</a>
-					) : (
-						<span>Refreshing...</span>
-					)}
-					<span> | </span>
-					<a
-						onClick={async () => {
-							await this.createRoom();
-						}}
-					>
-						Create room
-					</a>
+							{this.state.isRefreshing ? 'Refreshing...' : 'Refresh'}
+						</button>
+					</div>
 				</div>
 				<div>
+					<RoomComponent
+						room={{roomName: 'test', guid: '0000-00-123', players: [
+								{nickname: 'DiscoDzban', guid: '123-12345678-1234'},
+								{nickname: 'Turbo Lover', guid: '123-6969696969-2137'}
+							], readyDict: {}, maxPlayerCount: 2}}
+						joinRoomCallback={room => {}}
+						key='123'
+					/>
+					<RoomComponent
+						room={{roomName: 'XxXxXxX_XxXxXxX_XxXxXxX', guid: '0000-00-123', players: [
+								{nickname: 'DiscoKarton123', guid: '123-12345678-1234'},
+							], readyDict: {}, maxPlayerCount: 2}}
+						joinRoomCallback={room => {}}
+						key='456'
+					/>
+					
 					{this.state.rooms.map(room => {
 						return (
 							<RoomComponent
 								room={room}
-								joinRoomCallback={room => {
-									this.joinRoom(room.guid);
+								joinRoomCallback={async (room) => {
+									await this.joinRoom(room.guid);
 								}}
 								key={room.guid}
 							/>
 						);
 					})}
+				</div>
+				
+				<div className="modal fade" id="createRoomModal" tabIndex={-1} role="dialog" aria-labelledby="createRoomModalLabel" aria-hidden="true">
+					<div className="modal-dialog" role="document">
+						<div className="modal-content">
+							<div className="modal-header">
+								<h5 className="modal-title" id="exampleModalLabel">Create room</h5>
+								<button type="button" className="close" data-bs-dismiss="modal" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div className="modal-body">
+								<form>
+									<div className="form-group">
+										<label>Room name: </label>
+										<input
+											className="form-control"
+											type="text"
+											value={this.state.roomName}
+											onInput={e => {
+												this.setState({ roomName: e.currentTarget.value });
+											}}
+										/>
+									</div>
+								</form>
+							</div>
+							<div className="modal-footer">
+								<button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+								<button type="button" className="btn btn-primary" data-bs-dismiss="modal" disabled={this.state.roomName === ''}  onClick={async () => {
+									await this.createRoom()
+								}}>Create room</button>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		);

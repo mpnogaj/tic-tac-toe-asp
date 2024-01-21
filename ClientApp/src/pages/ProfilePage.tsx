@@ -81,14 +81,16 @@ class ProfilePage extends React.Component<empty, CompState> {
 		}
 
 		return (
-			<div>
+			<div className="container">
 				<h1>Your account - {this.state.accountInfo.username}</h1>
-				<div>
+				<a className="btn btn-primary" href="/">Back</a>
+				<div className="mt-2 mb-2">
 					<h2>Edit data</h2>
-					<div>
-						<div>
-							<label>Nickname</label>
+					<div className="form">
+						<div className="mb-3">
+							<label className="form-label">Nickname</label>
 							<input
+								className="form-control"
 								type="text"
 								value={this.state.nickname}
 								onChange={e => {
@@ -97,9 +99,10 @@ class ProfilePage extends React.Component<empty, CompState> {
 							/>
 						</div>
 
-						<div>
-							<label>New password (leave blank if you don&apos;t want to edit)</label>
+						<div className="mb-3">
+							<label className="form-label">New password (leave blank if you don&apos;t want to edit)</label>
 							<input
+								className="form-control"
 								type="password"
 								value={this.state.newPassword}
 								onChange={e => {
@@ -107,28 +110,30 @@ class ProfilePage extends React.Component<empty, CompState> {
 								}}
 							/>
 						</div>
-						<div>
-							<label>Confirm new password</label>
+						<div className="mb-3">
+							<label className="form-label">Confirm new password</label>
 							<input
+								className="form-control"
 								type="password"
 								value={this.state.newPasswordConfirm}
 								onChange={e => {
 									this.setState({ ...this.state, newPasswordConfirm: e.target.value });
 								}}
 							/>
+							<span
+								style={{
+									color: 'red',
+									display: this.passwordsMatches() ? 'none' : 'block'
+								}}
+							>
+								Password doesn&apos;t match
+							</span>
 						</div>
-						<span
-							style={{
-								color: 'red',
-								display: this.passwordsMatches() ? 'none' : 'block'
-							}}
-						>
-							Password doesn&apos;t match
-						</span>
 
-						<div>
-							<label>Current password</label>
+						<div className="mb-3">
+							<label className="form-label">Current password</label>
 							<input
+								className="form-control"
 								type="password"
 								value={this.state.oldPassword}
 								onChange={e => {
@@ -136,12 +141,12 @@ class ProfilePage extends React.Component<empty, CompState> {
 								}}
 							/>
 						</div>
-						<a href="#" onClick={async () => await this.submitHandler()}>
+						<button className="btn btn-primary" onClick={async () => await this.submitHandler()}>
 							Submit
-						</a>
+						</button>
 					</div>
 				</div>
-				<div>
+				<div className="mt-4 mb-2">
 					<h2>Stats</h2>
 					<div>
 						<span>Matches played: {this.state.accountInfo.matchesPlayed}</span>
